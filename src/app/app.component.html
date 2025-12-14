@@ -1,0 +1,63 @@
+<div class="background w-full h-[650px] flex justify-center items-center">
+
+  <div class="card w-[300px] h-[500px] bg-[#eee] rounded-[15px] overflow-hidden drop-shadow-md relative">
+
+    <!-- Top Section -->
+    <div
+      class="nameSong w-full h-[70%] bg-gradient-to-tr from-[#A2A6D1] to-[#404898] rounded-b-[144px] flex flex-col items-center relative">
+
+      <div class="titleSong text-[#eee] p-[15px] w-[90%] text-center mt-4">
+        <p class="text-[10px] mb-2 font-light">Now Playing</p>
+        <div class="text-xl font-bold truncate">{{ track()?.title || 'Select a Song' }}</div>
+      </div>
+
+      <!-- Disk Animation -->
+      <div id="disk"
+        class="absolute top-[7rem] w-[200px] h-[200px] bg-white bg-center bg-cover flex justify-center items-center rounded-full shadow-lg"
+        [style.background-image]="'url(' + (track()?.cover || '') + ')'" [class.animate-spin-slow]="isPlaying()">
+        <div class="w-[40px] h-[40px] bg-[#A2A6D1] rounded-full"></div>
+      </div>
+
+    </div>
+
+    <!-- Controls Section -->
+    <div class="mt-20 px-4">
+
+      <!-- Progress Bar -->
+      <div class="the-Rate w-full flex justify-center items-center gap-2">
+        <p class="text-xs text-gray-500 w-8 text-right">{{ formatTime(currentTime()) }}</p>
+
+        <div (click)="onSeek($event)"
+          class="ribbon w-[60%] h-[6px] bg-[#eee] rounded-[17px] shadow-inner overflow-hidden cursor-pointer relative border border-gray-200">
+          <div class="progress-rate h-full bg-gradient-to-tr from-[#A2A6D1] to-[#404898]" [style.width.%]="progress()">
+          </div>
+        </div>
+
+        <p class="text-xs text-gray-500 w-8">{{ formatTime(duration()) }}</p>
+      </div>
+
+
+      <!-- Buttons -->
+      <div class="theButton w-full flex justify-evenly items-center mt-6">
+
+        <div (click)="audio.prev()"
+          class="previous text-[#404898] text-2xl cursor-pointer hover:scale-110 transition-transform">
+          <i class="fas fa-backward"></i>
+        </div>
+
+        <div (click)="audio.toggle()"
+          class="play flex justify-center items-center text-[#eee] bg-[#404898] w-[60px] h-[60px] rounded-full cursor-pointer hover:shadow-lg transition-transform active:scale-95">
+          <i class="fas" [class.fa-play]="!isPlaying()" [class.fa-pause]="isPlaying()"></i>
+        </div>
+
+        <div (click)="audio.next()"
+          class="Next text-[#404898] text-2xl cursor-pointer hover:scale-110 transition-transform">
+          <i class="fas fa-forward"></i>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>

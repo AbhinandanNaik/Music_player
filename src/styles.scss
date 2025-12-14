@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Grandstander:wght@300&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: 'Grandstander', cursive;
+  @apply bg-gray-100 flex items-center justify-center;
+}

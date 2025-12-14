@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "title": "Chris Kläfford - Cold At The Altar",
+    "url": "/assets/music/chris-klfford-cold-at-the-altar.mp3",
+    "cover": "/assets/music/chris-klfford-cold-at-the-altar.jpeg"
+  },
+  {
+    "id": 2,
+    "title": "MAN WITH A MISSIONINTO THE DEEP",
+    "url": "/assets/music/man-with-a-missioninto-the-deep.mp3",
+    "cover": "/assets/music/man-with-a-missioninto-the-deep.jpg"
+  },
+  {
+    "id": 3,
+    "title": "ずっと真夜中でいいのに暗く黒くMVZUTOMAYO - DARKEN",
+    "url": "/assets/music/mvzutomayo-darken.mp3",
+    "cover": "/assets/music/mvzutomayo-darken.jpg"
+  }
+]
