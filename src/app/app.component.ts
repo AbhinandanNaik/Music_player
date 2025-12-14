@@ -1,11 +1,13 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AudioService } from './services/audio.service';
+import { GlassCardComponent } from './components/glass-card/glass-card.component';
+import { BubblesComponent } from './components/bubbles/bubbles.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, GlassCardComponent, BubblesComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
