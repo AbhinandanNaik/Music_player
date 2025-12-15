@@ -1,6 +1,7 @@
-import { Injectable, signal, computed, effect } from '@angular/core';
+import { Injectable, signal, computed, effect, inject } from '@angular/core';
 import { Track } from '../models/track.model';
 import playlistData from '../../assets/playlist.json';
+import { StorageService } from './storage.service';
 
 // Repeat Modes: 0 = Off, 1 = All, 2 = One
 export enum RepeatMode {
@@ -15,6 +16,7 @@ export enum RepeatMode {
 export class AudioService {
     private audio = new Audio();
     private playlist: Track[] = playlistData as Track[];
+    private storage = inject(StorageService);
 
     // State Signals
     readonly currentTrack = signal<Track | null>(null);
@@ -34,10 +36,45 @@ export class AudioService {
 
     constructor() {
         this.initAudioEvents();
-        this.resetShuffleIndices();
 
-        if (this.playlist.length > 0) {
+        // Load persisted state
+        this.loadState();
+
+        // Auto-save effect
+        effect(() => {
+            const state = {
+                trackId: this.currentTrack()?.id || -1,
+                shuffle: this.isShuffleOn(),
+                repeat: this.repeatMode(),
+                volume: 1
+            };
+            this.storage.saveState(state);
+        });
+
+        if (!this.currentTrack() && this.playlist.length > 0) {
             this.loadTrack(this.playlist[0]);
+        }
+    }
+
+    private loadState() {
+        const state = this.storage.loadState();
+        if (state) {
+            this.isShuffleOn.set(state.shuffle);
+            this.repeatMode.set(state.repeat);
+
+            if (state.shuffle) {
+                this.generateShuffleMapping();
+            } else {
+                this.resetShuffleIndices();
+            }
+
+            const track = this.playlist.find(t => t.id === state.trackId);
+            if (track) {
+                this.currentTrack.set(track);
+                this.audio.src = track.url;
+            }
+        } else {
+            this.resetShuffleIndices();
         }
     }
 
