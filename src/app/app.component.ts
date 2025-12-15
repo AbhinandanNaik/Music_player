@@ -4,11 +4,12 @@ import { AudioService, RepeatMode } from './services/audio.service';
 import { GlassCardComponent } from './components/glass-card/glass-card.component';
 import { BubblesComponent } from './components/bubbles/bubbles.component';
 import { PlaylistDrawerComponent } from './components/playlist-drawer/playlist-drawer.component';
+import { VisualizerComponent } from './components/visualizer/visualizer.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, GlassCardComponent, BubblesComponent, PlaylistDrawerComponent],
+  imports: [CommonModule, GlassCardComponent, BubblesComponent, PlaylistDrawerComponent, VisualizerComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })

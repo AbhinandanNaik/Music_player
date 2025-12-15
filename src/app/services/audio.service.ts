@@ -34,7 +34,12 @@ export class AudioService {
         return d > 0 ? (this.currentTime() / d) * 100 : 0;
     });
 
+    private audioCtx: AudioContext | null = null;
+    private analyser: AnalyserNode | null = null;
+    private source: MediaElementAudioSourceNode | null = null;
+
     constructor() {
+        this.audio.crossOrigin = "anonymous";
         this.initAudioEvents();
 
         // Load persisted state
@@ -54,6 +59,25 @@ export class AudioService {
         if (!this.currentTrack() && this.playlist.length > 0) {
             this.loadTrack(this.playlist[0]);
         }
+    }
+
+    getAnalyser(): AnalyserNode {
+        if (!this.analyser) {
+            this.initAudioContext();
+        }
+        return this.analyser!;
+    }
+
+    private initAudioContext() {
+        if (this.audioCtx) return;
+
+        this.audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        this.analyser = this.audioCtx.createAnalyser();
+        this.analyser.fftSize = 256; // Good balance for visualizer
+
+        this.source = this.audioCtx.createMediaElementSource(this.audio);
+        this.source.connect(this.analyser);
+        this.analyser.connect(this.audioCtx.destination);
     }
 
     private loadState() {
@@ -138,6 +162,13 @@ export class AudioService {
     }
 
     play(track?: Track) {
+        if (!this.audioCtx) {
+            this.initAudioContext();
+        }
+        if (this.audioCtx?.state === 'suspended') {
+            this.audioCtx.resume();
+        }
+
         if (track) {
             this.loadTrack(track);
             // If playing specific track, regenerate shuffle to put it first if shuffle is on
