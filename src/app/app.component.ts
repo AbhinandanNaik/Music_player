@@ -1,18 +1,22 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AudioService } from './services/audio.service';
+import { AudioService, RepeatMode } from './services/audio.service';
 import { GlassCardComponent } from './components/glass-card/glass-card.component';
 import { BubblesComponent } from './components/bubbles/bubbles.component';
+import { PlaylistDrawerComponent } from './components/playlist-drawer/playlist-drawer.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, GlassCardComponent, BubblesComponent],
+  imports: [CommonModule, GlassCardComponent, BubblesComponent, PlaylistDrawerComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
   audio = inject(AudioService);
+
+  isDrawerOpen = signal(false);
+  RepeatMode = RepeatMode; // Expose Enum to template
 
   // Expose signals to template
   track = this.audio.currentTrack;
@@ -20,6 +24,8 @@ export class AppComponent {
   currentTime = this.audio.currentTime;
   duration = this.audio.duration;
   progress = this.audio.progress;
+  isShuffleOn = this.audio.isShuffleOn;
+  repeatMode = this.audio.repeatMode;
 
   formatTime(time: number): string {
     if (!time) return '0:00';

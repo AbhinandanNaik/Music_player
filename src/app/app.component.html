@@ -1,16 +1,20 @@
 <app-bubbles></app-bubbles>
 
-<div class="h-screen w-full flex items-center justify-center p-8">
+<app-playlist-drawer [isOpen]="isDrawerOpen()" (close)="isDrawerOpen.set(false)"></app-playlist-drawer>
+
+<div class="h-screen w-full flex items-center justify-center p-8 perspective-1000">
   <div class="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
 
     <!-- Left: Album Art Section -->
-    <div class="flex flex-col items-center relative group">
+    <div class="flex flex-col items-center relative group perspective-1000">
       <!-- Disk / Art -->
       <div
-        class="relative w-[300px] h-[300px] md:w-[450px] md:h-[450px] transition-transform duration-700 ease-out group-hover:scale-105">
+        class="relative w-[300px] h-[300px] md:w-[450px] md:h-[450px] transition-transform duration-700 ease-out preserve-3d group-hover:rotate-y-12">
 
         <!-- Glow behind -->
-        <div class="absolute inset-0 bg-aurora-purple blur-3xl opacity-30 animate-pulse rounded-full"></div>
+        <div
+          class="absolute inset-0 bg-aurora-purple blur-3xl opacity-30 animate-pulse rounded-full -z-10 transform translate-z-[-50px]">
+        </div>
 
         <div id="disk"
           class="relative w-full h-full bg-cover bg-center rounded-full shadow-2xl border-4 border-white/10 z-10"
@@ -37,7 +41,8 @@
         <!-- Track Info (Desktop) -->
         <div class="hidden md:block mb-8">
           <h2 class="text-xs font-bold tracking-widest text-aurora-blue mb-2 uppercase">Now Playing</h2>
-          <h1 class="text-4xl font-black text-white leading-tight mb-2">{{ track()?.title || 'Select a Song' }}</h1>
+          <h1 class="text-4xl font-black text-white leading-tight mb-2 truncate">{{ track()?.title || 'Select a Song' }}
+          </h1>
           <p class="text-white/60">Sonic Glass Experience</p>
         </div>
 
@@ -66,7 +71,17 @@
         </div>
 
         <!-- Controls -->
-        <div class="flex items-center justify-between px-4">
+        <div class="flex items-center justify-between px-0">
+
+          <!-- Shuffle -->
+          <button (click)="audio.toggleShuffle()" [class.text-aurora-purple]="isShuffleOn()"
+            [class.text-white-40]="!isShuffleOn()"
+            class="hover:text-white transition-colors p-3 rounded-full hover:bg-white/5 relative group">
+            <i class="fas fa-random text-lg"></i>
+            <span *ngIf="isShuffleOn()"
+              class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-aurora-purple rounded-full"></span>
+          </button>
+
           <!-- Prev -->
           <button (click)="audio.prev()"
             class="text-white/70 hover:text-white transition-colors p-4 rounded-full hover:bg-white/5">
@@ -84,14 +99,25 @@
             class="text-white/70 hover:text-white transition-colors p-4 rounded-full hover:bg-white/5">
             <i class="fas fa-step-forward text-2xl"></i>
           </button>
+
+          <!-- Repeat -->
+          <button (click)="audio.toggleRepeat()" [class.text-aurora-purple]="repeatMode() !== RepeatMode.OFF"
+            [class.text-white-40]="repeatMode() === RepeatMode.OFF"
+            class="hover:text-white transition-colors p-3 rounded-full hover:bg-white/5 relative">
+            <i class="fas fa-redo text-lg"></i>
+            <span *ngIf="repeatMode() === RepeatMode.ONE"
+              class="absolute top-[10px] right-[8px] text-[8px] font-bold bg-aurora-dark px-1 rounded-full border border-aurora-purple text-aurora-purple">1</span>
+          </button>
+
         </div>
 
       </app-glass-card>
 
-      <!-- Playlist Details (for Phase 3) -->
+      <!-- Playlist Details -->
       <div class="mt-6 text-center">
-        <button class="text-white/40 hover:text-white text-sm font-light tracking-wide transition-colors">
-          VIEW PLAYLIST <i class="fas fa-chevron-up ml-1"></i>
+        <button (click)="isDrawerOpen.set(true)"
+          class="text-white/40 hover:text-white text-sm font-light tracking-wide transition-colors group">
+          VIEW PLAYLIST <i class="fas fa-chevron-up ml-1 group-hover:-translate-y-1 transition-transform"></i>
         </button>
       </div>
 
