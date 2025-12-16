@@ -12,6 +12,69 @@
   </button>
 </div>
 
+
+
+<!-- Settings Toggle (Top Left) -->
+<div class="fixed top-4 left-4 z-50">
+  <button (click)="showSettings = !showSettings"
+    class="text-white/30 hover:text-white transition-colors bg-black/20 hover:bg-black/40 p-2 rounded-full backdrop-blur-md">
+    <i class="fas fa-cog text-xl" [class.animate-spin-slow]="showSettings"></i>
+  </button>
+</div>
+
+<!-- Settings Panel -->
+<div *ngIf="showSettings"
+  class="fixed top-16 left-4 z-50 w-64 bg-aurora-dark/95 backdrop-blur-xl border border-white/10 rounded-xl p-4 shadow-2xl animate-fade-in">
+  <h3 class="text-white font-bold mb-4 tracking-wider text-sm border-b border-white/10 pb-2">CUSTOMIZATION</h3>
+
+  <!-- Visualizer Mode -->
+  <div class="mb-6">
+    <label class="text-xs text-white/50 uppercase font-bold mb-2 block">Visualizer</label>
+    <div class="grid grid-cols-3 gap-2">
+      <button (click)="audio.setVisualizerMode('bars')" [class.bg-aurora-blue]="visualizerMode() === 'bars'"
+        [class.text-aurora-dark]="visualizerMode() === 'bars'"
+        class="text-xs py-2 rounded bg-white/5 text-white hover:bg-white/10 transition-colors">
+        BARS
+      </button>
+      <button (click)="audio.setVisualizerMode('wave')" [class.bg-aurora-blue]="visualizerMode() === 'wave'"
+        [class.text-aurora-dark]="visualizerMode() === 'wave'"
+        class="text-xs py-2 rounded bg-white/5 text-white hover:bg-white/10 transition-colors">
+        WAVE
+      </button>
+      <button (click)="audio.setVisualizerMode('circle')" [class.bg-aurora-blue]="visualizerMode() === 'circle'"
+        [class.text-aurora-dark]="visualizerMode() === 'circle'"
+        class="text-xs py-2 rounded bg-white/5 text-white hover:bg-white/10 transition-colors">
+        CIRCLE
+      </button>
+    </div>
+  </div>
+
+  <!-- Themes -->
+  <div>
+    <label class="text-xs text-white/50 uppercase font-bold mb-2 block">Theme</label>
+    <div class="space-y-2">
+      <button (click)="themeService.setTheme('aurora')"
+        class="w-full flex items-center gap-3 p-2 rounded hover:bg-white/5 transition-colors group">
+        <div class="w-4 h-4 rounded-full bg-gradient-to-tr from-indigo-400 to-purple-400 border border-white/20"></div>
+        <span class="text-sm text-white group-hover:text-aurora-blue"
+          [class.font-bold]="currentTheme() === 'aurora'">Aurora (Default)</span>
+      </button>
+      <button (click)="themeService.setTheme('ocean')"
+        class="w-full flex items-center gap-3 p-2 rounded hover:bg-white/5 transition-colors group">
+        <div class="w-4 h-4 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-500 border border-white/20"></div>
+        <span class="text-sm text-white group-hover:text-aurora-blue"
+          [class.font-bold]="currentTheme() === 'ocean'">Ocean Depths</span>
+      </button>
+      <button (click)="themeService.setTheme('sunset')"
+        class="w-full flex items-center gap-3 p-2 rounded hover:bg-white/5 transition-colors group">
+        <div class="w-4 h-4 rounded-full bg-gradient-to-tr from-amber-400 to-rose-500 border border-white/20"></div>
+        <span class="text-sm text-white group-hover:text-aurora-blue"
+          [class.font-bold]="currentTheme() === 'sunset'">Sunset Drive</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="h-screen w-full flex items-center justify-center p-8 perspective-1000">
   <div class="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
 

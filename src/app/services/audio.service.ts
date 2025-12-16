@@ -27,6 +27,7 @@ export class AudioService {
     readonly repeatMode = signal<RepeatMode>(RepeatMode.OFF);
     readonly volume = signal(1);
     readonly favorites = signal<Set<number>>(new Set());
+    readonly visualizerMode = signal<'bars' | 'wave' | 'circle'>('bars');
 
     // Sleep Timer
     readonly timeRemaining = signal<number | null>(null);
@@ -65,7 +66,8 @@ export class AudioService {
                 shuffle: this.isShuffleOn(),
                 repeat: this.repeatMode(),
                 volume: this.volume(),
-                favorites: Array.from(this.favorites())
+                favorites: Array.from(this.favorites()),
+                visualizerMode: this.visualizerMode()
             };
             this.storage.saveState(state);
         });
@@ -105,12 +107,17 @@ export class AudioService {
         this.highFilter.type = 'highshelf';
         this.highFilter.frequency.value = 4000;
 
-        // Connect Graph: Source -> Bass -> Mid -> High -> Analyser -> Destination
+        // Soft Transition Gain Node
+        this.gainNode = this.audioCtx.createGain();
+        this.gainNode.gain.value = 1;
+
+        // Connect Graph: Source -> EQ (Bass->Mid->High) -> Analyser -> Gain -> Destination
         this.source.connect(this.bassFilter);
         this.bassFilter.connect(this.midFilter);
         this.midFilter.connect(this.highFilter);
         this.highFilter.connect(this.analyser!);
-        this.analyser!.connect(this.audioCtx.destination);
+        this.analyser!.connect(this.gainNode);
+        this.gainNode.connect(this.audioCtx.destination);
     }
 
     private loadState() {
@@ -123,6 +130,10 @@ export class AudioService {
 
             if (state.favorites) {
                 this.favorites.set(new Set(state.favorites));
+            }
+
+            if (state.visualizerMode) {
+                this.visualizerMode.set(state.visualizerMode);
             }
 
             if (state.shuffle) {
@@ -218,11 +229,31 @@ export class AudioService {
             }
         }
         if (!this.currentTrack()) return;
+
+        // Soft Fade In
+        if (this.gainNode && this.audioCtx) {
+            this.gainNode.gain.cancelScheduledValues(this.audioCtx.currentTime);
+            this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime);
+            this.gainNode.gain.linearRampToValueAtTime(1, this.audioCtx.currentTime + 0.3);
+        }
+
         this.audio.play().catch(console.error);
     }
 
     pause() {
-        this.audio.pause();
+        // Soft Fade Out
+        if (this.gainNode && this.audioCtx) {
+            const now = this.audioCtx.currentTime;
+            this.gainNode.gain.cancelScheduledValues(now);
+            this.gainNode.gain.setValueAtTime(this.gainNode.gain.value, now);
+            this.gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+
+            setTimeout(() => {
+                this.audio.pause();
+            }, 300);
+        } else {
+            this.audio.pause();
+        }
     }
 
     toggle() {
@@ -325,6 +356,11 @@ export class AudioService {
                 if (this.highFilter) this.highFilter.gain.value = value;
                 break;
         }
+    }
+
+    // --- Visualizer Control ---
+    setVisualizerMode(mode: 'bars' | 'wave' | 'circle') {
+        this.visualizerMode.set(mode);
     }
 
     // --- New Features ---

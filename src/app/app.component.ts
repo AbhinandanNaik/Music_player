@@ -1,6 +1,8 @@
 import { Component, computed, inject, signal, OnInit, PLATFORM_ID, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { AudioService, RepeatMode } from './services/audio.service';
+import { ThemeService, Theme } from './services/theme.service';
+import { Track } from './models/track.model';
 import { GlassCardComponent } from './components/glass-card/glass-card.component';
 import { BubblesComponent } from './components/bubbles/bubbles.component';
 import { PlaylistDrawerComponent } from './components/playlist-drawer/playlist-drawer.component';
@@ -19,9 +21,11 @@ export class AppComponent implements OnInit {
   audio = inject(AudioService);
   swUpdate = inject(SwUpdate);
   platformId = inject(PLATFORM_ID);
+  themeService = inject(ThemeService);
 
   isDrawerOpen = signal(false);
   showEQ = false;
+  showSettings = false; // New toggle for customization panel
   RepeatMode = RepeatMode; // Expose Enum to template
 
   // PWA Signals
@@ -37,10 +41,12 @@ export class AppComponent implements OnInit {
   progress = this.audio.progress;
   isShuffleOn = this.audio.isShuffleOn;
   repeatMode = this.audio.repeatMode;
-  volume = this.audio.volume;
+  readonly volume = computed(() => this.audio.volume());
+  readonly currentTheme = this.themeService.currentTheme;
+  readonly visualizerMode = this.audio.visualizerMode;
 
   // Favorites Helper
-  isFavorite = computed(() => {
+  readonly isFavorite = computed(() => {
     const t = this.track();
     return t ? this.audio.isFavorite(t.id) : false;
   });

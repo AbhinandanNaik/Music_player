@@ -5,8 +5,10 @@ export interface PlayerState {
     trackId: number;
     shuffle: boolean;
     repeat: RepeatMode;
-    volume: number;
-    favorites: number[];
+    volume?: number;
+    favorites?: number[];
+    visualizerMode?: 'bars' | 'wave' | 'circle';
+    theme?: 'aurora' | 'ocean' | 'sunset';
 }
 
 @Injectable({
