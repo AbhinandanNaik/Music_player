@@ -56,11 +56,55 @@
       <app-glass-card className="w-full">
 
         <!-- Track Info (Desktop) -->
-        <div class="hidden md:block mb-8">
-          <h2 class="text-xs font-bold tracking-widest text-aurora-blue mb-2 uppercase">Now Playing</h2>
-          <h1 class="text-4xl font-black text-white leading-tight mb-2 truncate">{{ track()?.title || 'Select a Song' }}
-          </h1>
-          <p class="text-white/60">Sonic Glass Experience</p>
+        <div class="hidden md:block mb-8 relative">
+          <div class="flex justify-between items-start">
+            <div>
+              <h2 class="text-xs font-bold tracking-widest text-aurora-blue mb-2 uppercase">Now Playing</h2>
+              <h1 class="text-4xl font-black text-white leading-tight mb-2 truncate max-w-[250px]">{{ track()?.title ||
+                'Select a Song' }}</h1>
+              <p class="text-white/60">Sonic Glass Experience</p>
+            </div>
+
+            <!-- EQ Toggle -->
+            <button (click)="showEQ = !showEQ" [class.text-aurora-blue]="showEQ"
+              class="text-white/30 hover:text-white transition-colors p-2">
+              <i class="fas fa-sliders-h text-xl"></i>
+            </button>
+          </div>
+
+          <!-- EQ Panel (Absolute Overlay) -->
+          <div *ngIf="showEQ"
+            class="absolute top-0 right-0 w-full h-full bg-aurora-dark/95 backdrop-blur-xl rounded-xl p-4 border border-white/10 z-20 flex flex-col gap-4 animate-fade-in shadow-2xl">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs font-bold text-white uppercase tracking-wider">Equalizer</span>
+              <button (click)="showEQ = false" class="text-white/50 hover:text-white"><i
+                  class="fas fa-times"></i></button>
+            </div>
+
+            <div class="flex-1 flex justify-around items-end gap-2 px-2">
+              <!-- Bass -->
+              <div class="flex flex-col items-center gap-2 h-full">
+                <input type="range" orient="vertical"
+                  class="h-24 w-1 bg-white/10 rounded-full appearance-none slider-vertical cursor-pointer" min="-10"
+                  max="10" step="1" (input)="setEQ('bass', $event)">
+                <span class="text-[10px] text-white/50 uppercase">Bass</span>
+              </div>
+              <!-- Mid -->
+              <div class="flex flex-col items-center gap-2 h-full">
+                <input type="range" orient="vertical"
+                  class="h-24 w-1 bg-white/10 rounded-full appearance-none slider-vertical cursor-pointer" min="-10"
+                  max="10" step="1" (input)="setEQ('mid', $event)">
+                <span class="text-[10px] text-white/50 uppercase">Mid</span>
+              </div>
+              <!-- Treble -->
+              <div class="flex flex-col items-center gap-2 h-full">
+                <input type="range" orient="vertical"
+                  class="h-24 w-1 bg-white/10 rounded-full appearance-none slider-vertical cursor-pointer" min="-10"
+                  max="10" step="1" (input)="setEQ('treble', $event)">
+                <span class="text-[10px] text-white/50 uppercase">High</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Progress Bar -->

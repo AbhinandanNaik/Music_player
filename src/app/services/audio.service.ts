@@ -28,6 +28,10 @@ export class AudioService {
     readonly volume = signal(1);
     readonly favorites = signal<Set<number>>(new Set());
 
+    // Sleep Timer
+    readonly timeRemaining = signal<number | null>(null);
+    private sleepTimerInterval: any = null;
+
     // Mapped Shuffle Index (Indices of playlist in random order)
     private shuffledIndices: number[] = [];
 
@@ -39,6 +43,12 @@ export class AudioService {
     private audioCtx: AudioContext | null = null;
     private analyser: AnalyserNode | null = null;
     private source: MediaElementAudioSourceNode | null = null;
+    private gainNode: GainNode | null = null;
+
+    // Equalizer Bands
+    private bassFilter: BiquadFilterNode | null = null;
+    private midFilter: BiquadFilterNode | null = null;
+    private highFilter: BiquadFilterNode | null = null;
 
     constructor() {
         this.audio.crossOrigin = "anonymous";
@@ -80,8 +90,27 @@ export class AudioService {
         this.analyser.fftSize = 256; // Good balance for visualizer
 
         this.source = this.audioCtx.createMediaElementSource(this.audio);
-        this.source.connect(this.analyser);
-        this.analyser.connect(this.audioCtx.destination);
+
+        // Create EQ Filters
+        this.bassFilter = this.audioCtx.createBiquadFilter();
+        this.bassFilter.type = 'lowshelf';
+        this.bassFilter.frequency.value = 250;
+
+        this.midFilter = this.audioCtx.createBiquadFilter();
+        this.midFilter.type = 'peaking';
+        this.midFilter.frequency.value = 1000;
+        this.midFilter.Q.value = 1; // Bandwidth
+
+        this.highFilter = this.audioCtx.createBiquadFilter();
+        this.highFilter.type = 'highshelf';
+        this.highFilter.frequency.value = 4000;
+
+        // Connect Graph: Source -> Bass -> Mid -> High -> Analyser -> Destination
+        this.source.connect(this.bassFilter);
+        this.bassFilter.connect(this.midFilter);
+        this.midFilter.connect(this.highFilter);
+        this.highFilter.connect(this.analyser!);
+        this.analyser!.connect(this.audioCtx.destination);
     }
 
     private loadState() {
@@ -252,6 +281,50 @@ export class AudioService {
 
     getPlaylist() {
         return this.playlist;
+    }
+
+    // --- Sleep Timer ---
+
+    startSleepTimer(minutes: number) {
+        this.cancelSleepTimer();
+        let seconds = minutes * 60;
+        this.timeRemaining.set(seconds);
+
+        this.sleepTimerInterval = setInterval(() => {
+            seconds--;
+            this.timeRemaining.set(seconds);
+
+            if (seconds <= 0) {
+                this.pause();
+                this.cancelSleepTimer();
+            }
+        }, 1000);
+    }
+
+    cancelSleepTimer() {
+        if (this.sleepTimerInterval) {
+            clearInterval(this.sleepTimerInterval);
+            this.sleepTimerInterval = null;
+        }
+        this.timeRemaining.set(null);
+    }
+
+    // --- Equalizer Control ---
+    setEQ(band: 'bass' | 'mid' | 'treble', value: number) {
+        if (!this.audioCtx) this.initAudioContext();
+
+        // Value is gain in dB (-10 to +10 usually)
+        switch (band) {
+            case 'bass':
+                if (this.bassFilter) this.bassFilter.gain.value = value;
+                break;
+            case 'mid':
+                if (this.midFilter) this.midFilter.gain.value = value;
+                break;
+            case 'treble':
+                if (this.highFilter) this.highFilter.gain.value = value;
+                break;
+        }
     }
 
     // --- New Features ---

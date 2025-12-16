@@ -21,6 +21,7 @@ export class AppComponent implements OnInit {
   platformId = inject(PLATFORM_ID);
 
   isDrawerOpen = signal(false);
+  showEQ = false;
   RepeatMode = RepeatMode; // Expose Enum to template
 
   // PWA Signals
@@ -87,6 +88,12 @@ export class AppComponent implements OnInit {
   onVolumeChange(event: Event) {
     const input = event.target as HTMLInputElement;
     this.audio.setVolume(parseFloat(input.value));
+  }
+
+  setEQ(band: string, event: Event) {
+    const input = event.target as HTMLInputElement;
+    // Cast to expected type
+    this.audio.setEQ(band as 'bass' | 'mid' | 'treble', parseFloat(input.value));
   }
 
   checkForUpdates() {
