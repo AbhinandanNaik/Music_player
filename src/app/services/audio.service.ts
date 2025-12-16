@@ -25,6 +25,8 @@ export class AudioService {
     readonly duration = signal(0);
     readonly isShuffleOn = signal(false);
     readonly repeatMode = signal<RepeatMode>(RepeatMode.OFF);
+    readonly volume = signal(1);
+    readonly favorites = signal<Set<number>>(new Set());
 
     // Mapped Shuffle Index (Indices of playlist in random order)
     private shuffledIndices: number[] = [];
@@ -41,6 +43,7 @@ export class AudioService {
     constructor() {
         this.audio.crossOrigin = "anonymous";
         this.initAudioEvents();
+        this.initMediaSession();
 
         // Load persisted state
         this.loadState();
@@ -51,7 +54,8 @@ export class AudioService {
                 trackId: this.currentTrack()?.id || -1,
                 shuffle: this.isShuffleOn(),
                 repeat: this.repeatMode(),
-                volume: 1
+                volume: this.volume(),
+                favorites: Array.from(this.favorites())
             };
             this.storage.saveState(state);
         });
@@ -85,6 +89,12 @@ export class AudioService {
         if (state) {
             this.isShuffleOn.set(state.shuffle);
             this.repeatMode.set(state.repeat);
+            this.volume.set(state.volume ?? 1);
+            this.audio.volume = this.volume(); // Apply volume immediately
+
+            if (state.favorites) {
+                this.favorites.set(new Set(state.favorites));
+            }
 
             if (state.shuffle) {
                 this.generateShuffleMapping();
@@ -158,7 +168,9 @@ export class AudioService {
     loadTrack(track: Track) {
         this.currentTrack.set(track);
         this.audio.src = track.url;
+        this.audio.src = track.url;
         this.audio.load();
+        this.updateMediaSessionMetadata();
     }
 
     play(track?: Track) {
@@ -240,5 +252,54 @@ export class AudioService {
 
     getPlaylist() {
         return this.playlist;
+    }
+
+    // --- New Features ---
+
+    setVolume(val: number) {
+        const clamped = Math.max(0, Math.min(1, val));
+        this.audio.volume = clamped;
+        this.volume.set(clamped);
+    }
+
+    toggleFavorite(trackId: number) {
+        const current = new Set(this.favorites());
+        if (current.has(trackId)) {
+            current.delete(trackId);
+        } else {
+            current.add(trackId);
+        }
+        this.favorites.set(current);
+    }
+
+    isFavorite(trackId: number): boolean {
+        return this.favorites().has(trackId);
+    }
+
+    // Media Session API
+    private initMediaSession() {
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.setActionHandler('play', () => this.play());
+            navigator.mediaSession.setActionHandler('pause', () => this.pause());
+            navigator.mediaSession.setActionHandler('previoustrack', () => this.prev());
+            navigator.mediaSession.setActionHandler('nexttrack', () => this.next());
+            navigator.mediaSession.setActionHandler('stop', () => this.pause());
+        }
+    }
+
+    private updateMediaSessionMetadata() {
+        if ('mediaSession' in navigator) {
+            const track = this.currentTrack();
+            if (!track) return;
+
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: track.title,
+                artist: 'Sonic Player',
+                album: 'Premium Collection',
+                artwork: [
+                    { src: track.cover || '', sizes: '512x512', type: 'image/jpeg' }
+                ]
+            });
+        }
     }
 }

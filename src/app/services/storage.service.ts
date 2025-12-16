@@ -6,6 +6,7 @@ export interface PlayerState {
     shuffle: boolean;
     repeat: RepeatMode;
     volume: number;
+    favorites: number[];
 }
 
 @Injectable({

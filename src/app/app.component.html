@@ -88,44 +88,68 @@
         </div>
 
         <!-- Controls -->
-        <div class="flex items-center justify-between px-0">
+        <div class="flex flex-col gap-6">
 
-          <!-- Shuffle -->
-          <button (click)="audio.toggleShuffle()" [class.text-aurora-purple]="isShuffleOn()"
-            [class.text-white-40]="!isShuffleOn()"
-            class="hover:text-white transition-colors p-3 rounded-full hover:bg-white/5 relative group">
-            <i class="fas fa-random text-lg"></i>
-            <span *ngIf="isShuffleOn()"
-              class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-aurora-purple rounded-full"></span>
-          </button>
+          <!-- Volume & Interaction -->
+          <div class="flex items-center justify-between px-4">
+            <!-- Volume -->
+            <div class="flex items-center gap-2 group w-1/3">
+              <i class="fas fa-volume-down text-white/50 text-xs"></i>
+              <input type="range"
+                class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:opacity-0 group-hover:[&::-webkit-slider-thumb]:opacity-100 transition-all"
+                min="0" max="1" step="0.01" [value]="volume()" (input)="onVolumeChange($event)">
+            </div>
 
-          <!-- Prev -->
-          <button (click)="audio.prev()"
-            class="text-white/70 hover:text-white transition-colors p-4 rounded-full hover:bg-white/5">
-            <i class="fas fa-step-backward text-2xl"></i>
-          </button>
+            <!-- Favorite -->
+            <button (click)="toggleFavorite()"
+              class="text-white/30 hover:text-aurora-purple transition-colors transform hover:scale-110 active:scale-95"
+              [class.text-aurora-purple]="isFavorite()" [class.text-red-500]="isFavorite()"> <!-- Use red or purple -->
+              <i class="fas" [class.fa-heart]="isFavorite()" [class.fa-heart-broken]="!isFavorite() && false"
+                [class.far]="!isFavorite()"></i> <!-- fa-heart solid vs regular -->
+              <i class="text-xl" [class.fas]="isFavorite()" [class.far]="!isFavorite()" class="fa-heart"></i>
+            </button>
+          </div>
 
-          <!-- Play/Pause (Animated Morph) -->
-          <button (click)="audio.toggle()"
-            class="w-20 h-20 flex items-center justify-center rounded-full bg-gradient-to-tr from-aurora-blue to-aurora-purple text-white shadow-lg shadow-aurora-purple/30 hover:scale-110 active:scale-95 transition-all">
-            <i class="fas text-3xl" [class.fa-play]="!isPlaying()" [class.fa-pause]="isPlaying()"></i>
-          </button>
+          <!-- Playback Controls -->
+          <div class="flex items-center justify-between px-0">
 
-          <!-- Next -->
-          <button (click)="audio.next()"
-            class="text-white/70 hover:text-white transition-colors p-4 rounded-full hover:bg-white/5">
-            <i class="fas fa-step-forward text-2xl"></i>
-          </button>
+            <!-- Shuffle -->
+            <button (click)="audio.toggleShuffle()" [class.text-aurora-purple]="isShuffleOn()"
+              [class.text-white-40]="!isShuffleOn()"
+              class="hover:text-white transition-colors p-3 rounded-full hover:bg-white/5 relative group">
+              <i class="fas fa-random text-lg"></i>
+              <span *ngIf="isShuffleOn()"
+                class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-aurora-purple rounded-full"></span>
+            </button>
 
-          <!-- Repeat -->
-          <button (click)="audio.toggleRepeat()" [class.text-aurora-purple]="repeatMode() !== RepeatMode.OFF"
-            [class.text-white-40]="repeatMode() === RepeatMode.OFF"
-            class="hover:text-white transition-colors p-3 rounded-full hover:bg-white/5 relative">
-            <i class="fas fa-redo text-lg"></i>
-            <span *ngIf="repeatMode() === RepeatMode.ONE"
-              class="absolute top-[10px] right-[8px] text-[8px] font-bold bg-aurora-dark px-1 rounded-full border border-aurora-purple text-aurora-purple">1</span>
-          </button>
+            <!-- Prev -->
+            <button (click)="audio.prev()"
+              class="text-white/70 hover:text-white transition-colors p-4 rounded-full hover:bg-white/5">
+              <i class="fas fa-step-backward text-2xl"></i>
+            </button>
 
+            <!-- Play/Pause (Animated Morph) -->
+            <button (click)="audio.toggle()"
+              class="w-20 h-20 flex items-center justify-center rounded-full bg-gradient-to-tr from-aurora-blue to-aurora-purple text-white shadow-lg shadow-aurora-purple/30 hover:scale-110 active:scale-95 transition-all">
+              <i class="fas text-3xl" [class.fa-play]="!isPlaying()" [class.fa-pause]="isPlaying()"></i>
+            </button>
+
+            <!-- Next -->
+            <button (click)="audio.next()"
+              class="text-white/70 hover:text-white transition-colors p-4 rounded-full hover:bg-white/5">
+              <i class="fas fa-step-forward text-2xl"></i>
+            </button>
+
+            <!-- Repeat -->
+            <button (click)="audio.toggleRepeat()" [class.text-aurora-purple]="repeatMode() !== RepeatMode.OFF"
+              [class.text-white-40]="repeatMode() === RepeatMode.OFF"
+              class="hover:text-white transition-colors p-3 rounded-full hover:bg-white/5 relative">
+              <i class="fas fa-redo text-lg"></i>
+              <span *ngIf="repeatMode() === RepeatMode.ONE"
+                class="absolute top-[10px] right-[8px] text-[8px] font-bold bg-aurora-dark px-1 rounded-full border border-aurora-purple text-aurora-purple">1</span>
+            </button>
+
+          </div>
         </div>
 
       </app-glass-card>

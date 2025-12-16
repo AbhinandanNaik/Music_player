@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, computed, inject, signal, OnInit, PLATFORM_ID, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { AudioService, RepeatMode } from './services/audio.service';
 import { GlassCardComponent } from './components/glass-card/glass-card.component';
@@ -36,10 +36,57 @@ export class AppComponent implements OnInit {
   progress = this.audio.progress;
   isShuffleOn = this.audio.isShuffleOn;
   repeatMode = this.audio.repeatMode;
+  volume = this.audio.volume;
+
+  // Favorites Helper
+  isFavorite = computed(() => {
+    const t = this.track();
+    return t ? this.audio.isFavorite(t.id) : false;
+  });
 
   ngOnInit() {
     this.checkForUpdates();
     this.captureInstallPrompt();
+  }
+
+  // Keyboard Shortcuts
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    // Ignore if typing in an input (if any)
+    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
+
+    switch (event.code) {
+      case 'Space':
+        event.preventDefault(); // Prevent scrolling
+        this.audio.toggle();
+        break;
+      case 'ArrowRight':
+        if (event.shiftKey) this.audio.next();
+        else this.audio.seek(this.currentTime() + 5);
+        break;
+      case 'ArrowLeft':
+        if (event.shiftKey) this.audio.prev();
+        else this.audio.seek(this.currentTime() - 5);
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.audio.setVolume(this.audio.volume() + 0.1);
+        break;
+      case 'ArrowDown':
+        event.preventDefault();
+        this.audio.setVolume(this.audio.volume() - 0.1);
+        break;
+    }
+  }
+
+  toggleFavorite() {
+    const t = this.track();
+    if (t) this.audio.toggleFavorite(t.id);
+  }
+
+  onVolumeChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.audio.setVolume(parseFloat(input.value));
   }
 
   checkForUpdates() {

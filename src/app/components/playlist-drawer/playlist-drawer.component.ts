@@ -54,9 +54,12 @@ import { Track } from '../../models/track.model';
                 </div>
 
                 <!-- Info -->
-                <div class="flex-1 min-w-0">
-                   <p class="text-white font-medium truncate group-hover:text-aurora-blue transition-colors">{{ track.title }}</p>
-                   <p class="text-xs text-white/50 truncate">Track {{ i + 1 }}</p>
+                <div class="flex-1 min-w-0 flex justify-between items-center">
+                   <div class="min-w-0">
+                      <p class="text-white font-medium truncate group-hover:text-aurora-blue transition-colors">{{ track.title }}</p>
+                      <p class="text-xs text-white/50 truncate">Track {{ i + 1 }}</p>
+                   </div>
+                   <i *ngIf="isFavorite(track)" class="fas fa-heart text-aurora-purple text-xs ml-2"></i>
                 </div>
 
               </div>
@@ -98,6 +101,10 @@ export class PlaylistDrawerComponent {
 
   isActive(track: Track): boolean {
     return this.currentId() === track.id;
+  }
+
+  isFavorite(track: Track): boolean {
+    return this.audio.isFavorite(track.id);
   }
 
   play(track: Track) {
