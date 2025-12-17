@@ -54,11 +54,19 @@ import { Track } from '../../models/track.model';
               <div class="relative group">
                   <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-aurora-blue transition-colors"></i>
                   <input 
+                    #searchInput
                     type="text" 
                     placeholder="Search tracks..." 
                     [value]="searchQuery()"
                     (input)="onSearch($event)"
-                    class="w-full bg-black/20 text-white pl-10 pr-4 py-2 rounded-lg border border-white/10 focus:border-aurora-blue focus:outline-none transition-colors placeholder:text-white/20">
+                    class="w-full bg-black/20 text-white pl-10 pr-10 py-2 rounded-lg border border-white/10 focus:border-aurora-blue focus:outline-none transition-colors placeholder:text-white/20">
+                  
+                  <!-- Clear Button -->
+                  <button *ngIf="searchQuery()" 
+                          (click)="clearSearch()"
+                          class="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-colors">
+                      <i class="fas fa-times-circle"></i>
+                  </button>
               </div>
            </div>
 
@@ -158,6 +166,10 @@ export class PlaylistDrawerComponent {
   onSearch(event: Event) {
     const input = event.target as HTMLInputElement;
     this.searchQuery.set(input.value);
+  }
+
+  clearSearch() {
+    this.searchQuery.set('');
   }
 
   formatTime(seconds: number): string {

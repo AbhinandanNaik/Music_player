@@ -32,6 +32,7 @@ export class AudioService {
     // Sleep Timer
     readonly timeRemaining = signal<number | null>(null);
     private sleepTimerInterval: any = null;
+    private fadeTimeout: any = null;
 
     // Mapped Shuffle Index (Indices of playlist in random order)
     private shuffledIndices: number[] = [];
@@ -232,6 +233,11 @@ export class AudioService {
 
         // Soft Fade In
         if (this.gainNode && this.audioCtx) {
+            // Cancel any pending pause/fade
+            if (this.fadeTimeout) {
+                clearTimeout(this.fadeTimeout);
+                this.fadeTimeout = null;
+            }
             this.gainNode.gain.cancelScheduledValues(this.audioCtx.currentTime);
             this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime);
             this.gainNode.gain.linearRampToValueAtTime(1, this.audioCtx.currentTime + 0.3);
@@ -248,8 +254,9 @@ export class AudioService {
             this.gainNode.gain.setValueAtTime(this.gainNode.gain.value, now);
             this.gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
 
-            setTimeout(() => {
+            this.fadeTimeout = setTimeout(() => {
                 this.audio.pause();
+                this.fadeTimeout = null;
             }, 300);
         } else {
             this.audio.pause();
