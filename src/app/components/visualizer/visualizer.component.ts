@@ -27,6 +27,15 @@ export class VisualizerComponent implements AfterViewInit, OnDestroy {
         this.stopLoop();
       }
     });
+
+    // Redraw on mode change even if paused
+    effect(() => {
+      const mode = this.audio.visualizerMode(); // Dependency
+      if (!this.audio.isPlaying() && this.ctx) {
+        // Force one frame with empty data (or current data)
+        requestAnimationFrame(() => this.drawOnePacket());
+      }
+    });
   }
 
   ngAfterViewInit() {
@@ -70,12 +79,14 @@ export class VisualizerComponent implements AfterViewInit, OnDestroy {
 
   private loop() {
     this.animationId = requestAnimationFrame(() => this.loop());
+    this.drawOnePacket();
+  }
 
+  private drawOnePacket() {
     if (!this.ctx || !this.analyser || !this.dataArray) return;
 
     const width = this.canvasRef.nativeElement.width;
     const height = this.canvasRef.nativeElement.height;
-    const bufferLength = this.analyser.frequencyBinCount;
 
     // Get Data
     const mode = this.audio.visualizerMode();
