@@ -20,18 +20,10 @@ export class ThemeService {
 
         // Effect to apply theme to document
         effect(() => {
-            this.applyTheme(this.currentTheme());
-            // Save to storage
-            const state = this.storage.loadState() || { trackId: -1, shuffle: false, repeat: 0, volume: 1, favorites: [] };
-            // We need to be careful not to overwrite other state if not fully loaded, 
-            // but StorageService.saveState merges? No, it overwrites. 
-            // Actually AudioService handles the main save loop. 
-            // Ideally we should inject AudioService here but that creates circular dependency.
-            // For now, we update via DOM and let AudioService save the main state, 
-            // OR we need to accept that Theme is saved separately or we add 'theme' to AudioService's effect.
-            // Optimally: Let AudioService manage the signal and duplicate it here? 
-            // Simpler: Just apply the theme here. AudioService has an effect that saves *everything*.
-            // So we need to expose theme in AudioService or have AudioService read from here.
+            const theme = this.currentTheme();
+            this.applyTheme(theme);
+            // Save to storage securely
+            this.storage.updateState({ theme });
         });
     }
 

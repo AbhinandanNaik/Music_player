@@ -62,7 +62,7 @@ export class AudioService {
 
         // Auto-save effect
         effect(() => {
-            const state = {
+            const partialState = {
                 trackId: this.currentTrack()?.id || -1,
                 shuffle: this.isShuffleOn(),
                 repeat: this.repeatMode(),
@@ -70,7 +70,7 @@ export class AudioService {
                 favorites: Array.from(this.favorites()),
                 visualizerMode: this.visualizerMode()
             };
-            this.storage.saveState(state);
+            this.storage.updateState(partialState);
         });
 
         if (!this.currentTrack() && this.playlist.length > 0) {

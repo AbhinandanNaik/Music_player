@@ -36,4 +36,17 @@ export class StorageService {
             return null;
         }
     }
+
+    updateState(partialState: Partial<PlayerState>): void {
+        const currentState = this.loadState() || {
+            trackId: -1,
+            shuffle: false,
+            repeat: 0,
+            volume: 1,
+            favorites: []
+        } as PlayerState;
+
+        const newState = { ...currentState, ...partialState };
+        this.saveState(newState);
+    }
 }
